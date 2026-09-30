@@ -1,0 +1,35 @@
+@api = localhost:3001/api
+@id = 1
+
+
+## USER
+### POST REGISTER USER
+POST {{api}}/auth/register
+
+### POST LOGIN USER
+POST {{api}}/auth/login
+
+### GET CURRENT USER
+GET {{api}}/auth/me
+
+### GET USER BY ID
+GET {{api}}/user/{{id}}
+
+
+## RENTALS
+### GET ALL RENTALS
+GET {{api}}/rentals
+
+### GET RENTAL BY ID
+GET {{api}}/rentals/{{id}}
+
+### CREATE NEW RENTAL
+POST {{api}}/rentals
+
+### PUT UPDATE RENTAL
+PUT /rentals/{{id}}
+
+
+## MESSAGES
+### SEND MESSAGE
+POST {{api}}/message
