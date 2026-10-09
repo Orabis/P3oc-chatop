@@ -1,10 +1,7 @@
-import type { Request as ExpressRequest } from 'express';
-
 export interface UserPayload {
-    id: string;
-    email: string;
+  id: string;
+  email: string;
 }
-
-export interface AuthenticatedRequest extends ExpressRequest {
-    user: UserPayload;
+export interface AuthenticatedRequest {
+  user: UserPayload;
 }

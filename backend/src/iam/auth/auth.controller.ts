@@ -11,13 +11,13 @@ export class AuthController {
     constructor(private auth: AuthService) {}
     @Post('register')
     async createAccount(@Body() registerDto: RegisterDto){
-        return this.auth.register(registerDto)
+        return this.auth.registerUser(registerDto)
     }
     @UseGuards(LocalAuthGuard)
     @ApiBody({ type: LoginDto })
     @Post('login')
-    async login(@Request() req:AuthenticatedRequest) {
-        return this.auth.login(req.user);
+    async loginAccount(@Request() req:AuthenticatedRequest) {
+        return this.auth.loginUser(req);
     }
 
 }
