@@ -6,4 +6,3 @@ import { UsersService } from './users.service.js';
   exports: [UsersService]
 })
 export class UsersModule {}
-// TODO : https://docs.nestjs.com/data/prisma

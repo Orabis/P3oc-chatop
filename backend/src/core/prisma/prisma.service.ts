@@ -18,6 +18,7 @@ implements OnModuleInit, OnModuleDestroy
             user: dbUrl.username,
             password: dbUrl.password,
             database: dbUrl.pathname.slice(1),
+            allowPublicKeyRetrieval: true
         })
         super({ adapter });
     }

@@ -9,7 +9,7 @@ import {AuthModule} from "./iam/auth/auth.module.js";
       ConfigModule.forRoot({ isGlobal: true }),
       UsersModule,
       AuthModule,
-      PrismaModule
+      PrismaModule,
   ],
   providers: [],
   controllers: [],

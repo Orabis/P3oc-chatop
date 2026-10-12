@@ -6,11 +6,13 @@ import {UsersModule} from "../users/users.module.js";
 import {PassportModule} from "@nestjs/passport";
 import {LocalStrategy} from "./strategy/local.strategy.js";
 import {JwtModule} from "@nestjs/jwt";
+import { CredentialsModule } from '../credentials/credentials.module.js';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    CredentialsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
