@@ -1,18 +1,16 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { PasswordHasher } from '@nestjs/authentication';
 import { CredentialsService } from './credentials.service.js';
 
 describe('CredentialsService', () => {
-  let service: CredentialsService;
+  const service = new CredentialsService(new PasswordHasher());
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [CredentialsService],
-    }).compile();
+  it('verifies a password against its hash', async () => {
+    const hash = await service.hashPassword('Password123');
 
-    service = module.get<CredentialsService>(CredentialsService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(hash).not.toBe('Password123');
+    await expect(service.checkPassword('Password123', hash)).resolves.toBe(
+      true,
+    );
+    await expect(service.checkPassword('wrong', hash)).resolves.toBe(false);
   });
 });

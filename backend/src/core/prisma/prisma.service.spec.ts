@@ -1,18 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from './prisma.service.js';
 
 describe('PrismaService', () => {
-  let service: PrismaService;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService],
-    }).compile();
-
-    service = module.get<PrismaService>(PrismaService);
-  });
-
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    const config = {
+      getOrThrow: () => 'mysql://user:pass@localhost:3306/chatop_db',
+    } as unknown as ConfigService;
+
+    expect(new PrismaService(config)).toBeDefined();
   });
 });
