@@ -1,7 +1,13 @@
 export interface UserPayload {
-  id: string;
+  id: number;
   email: string;
 }
+
+export interface JwtPayload {
+  sub: number;
+  email: string;
+}
+
 export interface AuthenticatedRequest {
   user: UserPayload;
 }

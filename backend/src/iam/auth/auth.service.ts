@@ -1,9 +1,17 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {UsersService} from "../users/users.service.js";
-import {JwtService} from "@nestjs/jwt";
-import {loginData, registerData} from "./interfaces/auth-service.interface.js";
-import type { AuthenticatedRequest } from './interfaces/auth-request.interface.js';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service.js';
 import { CredentialsService } from '../credentials/credentials.service.js';
+import {
+  loginData,
+  registerData,
+} from './interfaces/auth-service.interface.js';
+import type {
+  JwtPayload,
+  UserPayload,
+} from './interfaces/auth-request.interface.js';
+import { TokenResponseDto } from './dto/token-response.dto.js';
+import { UserResponseDto } from '../users/dto/user-response.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -13,29 +21,42 @@ export class AuthService {
     private credentialsService: CredentialsService,
   ) {}
 
-  async registerUser(data: registerData) {
+  async registerUser(data: registerData): Promise<TokenResponseDto> {
     if (await this.usersService.findOneByEmail(data.email)) {
-      throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Email already exists');
     }
-    const payload = {
+    const user = await this.usersService.create({
       name: data.name,
       email: data.email,
       password: await this.credentialsService.hashPassword(data.password),
-    };
-    await this.usersService.create(payload);
+    });
+    return this.generateToken({ id: user.id, email: user.email });
   }
-  async validateUser(data: loginData) {
+
+  async validateUser(data: loginData): Promise<UserPayload | null> {
     const user = await this.usersService.findOneByEmail(data.email);
-    if (user && await this.credentialsService.checkPassword(data.password,user.password)) {
-      const { password, ...result } = user;
-      return result;
+    if (
+      user &&
+      (await this.credentialsService.checkPassword(
+        data.password,
+        user.password,
+      ))
+    ) {
+      return { id: user.id, email: user.email };
     }
     return null;
   }
-  async loginUser(req: AuthenticatedRequest) {
-    const payload = { email: req.user.email, sub: req.user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+
+  loginUser(user: UserPayload): TokenResponseDto {
+    return this.generateToken(user);
+  }
+
+  getCurrentUser(user: UserPayload): Promise<UserResponseDto> {
+    return this.usersService.findOneById(user.id);
+  }
+
+  private generateToken(user: UserPayload): TokenResponseDto {
+    const payload: JwtPayload = { sub: user.id, email: user.email };
+    return { token: this.jwtService.sign(payload) };
   }
 }
