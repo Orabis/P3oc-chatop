@@ -28,7 +28,9 @@ async function bootstrap() {
     }),
   );
   app.useStaticAssets(UPLOADS_DIR, { prefix: `/${UPLOADS_ROUTE}/` });
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('api', app, documentFactory, {
+    swaggerOptions: { persistAuthorization: true },
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
 await bootstrap();

@@ -1,124 +1,134 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ChâTop – API back-end
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST de ChâTop, développée avec NestJS, Prisma et MySQL. Elle remplace l'API Mockoon utilisée par le front-end React (`../frontend`).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Prérequis
 
-## Description
+- Node.js 22 LTS ou supérieur
+- pnpm (`npm install -g pnpm`)
+- MySQL 8.0+ (ou MariaDB 10.5+)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Installation
 
-## Project setup
+### 1. Installer les dépendances
 
 ```bash
-$ pnpm install
+cd backend
+pnpm install
 ```
 
-## Compile and run the project
+### 2. Créer les bases de données
+
+Connectez-vous à MySQL avec un utilisateur qui a le droit de créer des bases, puis exécutez :
+
+```sql
+CREATE DATABASE chatop_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE chatop_shadow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+`chatop_shadow` est la base temporaire dont Prisma a besoin pour calculer les migrations.
+
+### 3. Configurer les variables d'environnement
+
+Copiez le fichier d'exemple, puis remplissez-le :
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+cp .env.example .env
 ```
 
-## Run tests
+| Variable              | Obligatoire | Description                                                  |
+| --------------------- | ----------- | ------------------------------------------------------------ |
+| `DATABASE_URL`        | oui         | `mysql://<user>:<password>@localhost:3306/chatop_db`         |
+| `SHADOW_DATABASE_URL` | oui         | `mysql://<user>:<password>@localhost:3306/chatop_shadow`     |
+| `PORT`                | non         | Port de l'API (`3000` par défaut, `3001` dans l'exemple)     |
+| `JWT_SECRET`          | oui         | Chaîne aléatoire longue utilisée pour signer les tokens JWT  |
+| `APP_URL`             | non         | URL publique de l'API, utilisée pour les URL des images      |
+| `CORS_ORIGIN`         | non         | Origine autorisée pour le front (`http://localhost:5173`)    |
+
+Pour générer un `JWT_SECRET` :
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-## Deployment
+Le fichier `.env` est ignoré par git : aucun identifiant n'est écrit dans le code.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 4. Créer les tables et générer le client Prisma
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm exec prisma migrate deploy
+pnpm exec prisma generate
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Prisma lit automatiquement sa configuration dans `prisma7.config.ts` (schéma `prisma/schema.prisma`, migrations dans `prisma/migrations`).
 
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project:
+### 5. Lancer l'API
 
 ```bash
-$ pnpm install @nestjs/observe
+# développement (rechargement automatique)
+pnpm run start:dev
+
+# production
+pnpm run build
+pnpm run start:prod
 ```
 
-Then follow the [setup guide](https://docs.nestjs.com/observability/overview) - it takes a single import and an app key.
+L'API répond sur `http://localhost:<PORT>/api`.
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+## Documentation Swagger
 
-## Resources
+Elle est disponible sur `http://localhost:<PORT>/api` une fois l'API lancée.
 
-Check out a few resources that may come in handy when working with NestJS:
+Pour tester les routes protégées dans Swagger :
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+1. Appelez `POST /api/auth/register` ou `POST /api/auth/login` et copiez le `token` renvoyé.
+2. Cliquez sur **Authorize**, collez le token, puis validez.
+3. Le token reste enregistré quand vous rechargez la page.
 
-## Support
+## Routes
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Toutes les routes sauf `register` et `login` exigent l'en-tête `Authorization: Bearer <token>`.
 
-## Stay in touch
+| Méthode | Route                | Description                                                 |
+| ------- | -------------------- | ----------------------------------------------------------- |
+| POST    | `/api/auth/register` | Créer un compte, renvoie un token                           |
+| POST    | `/api/auth/login`    | Se connecter, renvoie un token                              |
+| GET     | `/api/auth/me`       | Utilisateur connecté                                        |
+| GET     | `/api/user/:id`      | Utilisateur par id                                          |
+| GET     | `/api/rentals`       | Liste des locations, avec leur propriétaire                 |
+| GET     | `/api/rentals/:id`   | Détail d'une location                                       |
+| POST    | `/api/rentals`       | Créer une location (`multipart/form-data`, champ `picture`) |
+| PUT     | `/api/rentals/:id`   | Modifier une location (propriétaire uniquement)             |
+| POST    | `/api/messages`      | Envoyer un message sur une location                         |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Les images envoyées sont stockées dans `uploads/` et servies sur `/uploads/<fichier>` (jpeg, png, webp ou gif, 5 Mo maximum).
 
-## License
+## Architecture
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```
+src/
+├── core/            # Prisma, configuration des uploads, DTO partagés
+├── iam/
+│   ├── auth/        # register, login, me, stratégies et guards JWT/local
+│   ├── credentials/ # hachage et vérification des mots de passe
+│   └── users/       # GET /user/:id
+├── rentals/         # CRUD des locations
+└── messages/        # envoi de messages
+```
+
+Chaque fonctionnalité est découpée en quatre couches :
+
+- **Modèle** : `prisma/schema.prisma` et les DTO (`dto/`)
+- **Repository** : accès à la base via Prisma (`*.repository.ts`)
+- **Service** : règles métier (`*.service.ts`)
+- **Controller** : routes HTTP (`*.controller.ts`)
+
+Le guard JWT est global : une route est protégée par défaut et ne devient publique qu'avec le décorateur `@Public()`. Les mots de passe sont hachés avant d'être enregistrés en base.
+
+## Scripts utiles
+
+| Commande          | Rôle                      |
+| ----------------- | ------------------------- |
+| `pnpm run lint`   | Analyse statique (oxlint) |
+| `pnpm run format` | Formatage (Prettier)      |
+| `pnpm run build`  | Compilation dans `dist/`  |

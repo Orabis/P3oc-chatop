@@ -9,6 +9,7 @@ import { UserResponseDto } from './dto/user-response.dto.js';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  /** Renvoie un utilisateur par son identifiant. */
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<UserResponseDto> {
     return this.usersService.findOneById(id);

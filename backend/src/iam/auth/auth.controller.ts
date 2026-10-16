@@ -23,12 +23,14 @@ import { UserResponseDto } from '../users/dto/user-response.dto.js';
 export class AuthController {
   constructor(private auth: AuthService) {}
 
+  /** Crée un compte utilisateur et renvoie un token JWT. */
   @Public()
   @Post('register')
   createAccount(@Body() registerDto: RegisterDto): Promise<TokenResponseDto> {
     return this.auth.registerUser(registerDto);
   }
 
+  /** Authentifie l'utilisateur par email / mot de passe et renvoie un token JWT. */
   @Public()
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginDto })
@@ -38,6 +40,7 @@ export class AuthController {
     return this.auth.loginUser(req.user);
   }
 
+  /** Renvoie le profil de l'utilisateur connecté. */
   @ApiBearerAuth()
   @Get('me')
   me(@Request() req: AuthenticatedRequest): Promise<UserResponseDto> {

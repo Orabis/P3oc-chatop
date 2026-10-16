@@ -10,6 +10,7 @@ import { MessageResponseDto } from '../core/dto/message-response.dto.js';
 export class MessagesController {
   constructor(private messagesService: MessagesService) {}
 
+  /** Envoie un message au propriétaire d'une location. */
   @Post()
   create(@Body() dto: CreateMessageDto): Promise<MessageResponseDto> {
     return this.messagesService.create(dto);
