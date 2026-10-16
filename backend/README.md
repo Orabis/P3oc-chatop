@@ -2,6 +2,8 @@
 
 API REST de ChâTop, développée avec NestJS, Prisma et MySQL. Elle remplace l'API Mockoon utilisée par le front-end React (`../frontend`).
 
+Le fonctionnement interne (architecture, authentification, base de données) est expliqué dans la [documentation technique](TECHNICAL.md).
+
 ## Prérequis
 
 - Node.js 22 LTS ou supérieur
@@ -10,10 +12,11 @@ API REST de ChâTop, développée avec NestJS, Prisma et MySQL. Elle remplace l'
 
 ## Installation
 
-### 1. Installer les dépendances
+### 1. Cloner le projet et installer les dépendances
 
 ```bash
-cd backend
+git clone https://github.com/Orabis/P3oc-chatop.git
+cd P3oc-chatop/backend
 pnpm install
 ```
 
@@ -73,11 +76,13 @@ pnpm run build
 pnpm run start:prod
 ```
 
-L'API répond sur `http://localhost:<PORT>/api`.
+L'API répond sur **http://localhost:3001/api** (avec `PORT=3001`, comme dans `.env.example`).
 
 ## Documentation Swagger
 
-Elle est disponible sur `http://localhost:<PORT>/api` une fois l'API lancée.
+Une fois l'API lancée, Swagger est disponible sur **http://localhost:3001/api**.
+
+Si vous changez `PORT` dans le `.env`, remplacez `3001` par votre port.
 
 Pour tester les routes protégées dans Swagger :
 
